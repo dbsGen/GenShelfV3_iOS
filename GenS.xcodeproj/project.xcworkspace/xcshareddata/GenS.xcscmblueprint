@@ -1,0 +1,65 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "9A526D7E6CF5A95DFDC73DFBA67F691BBD0CCEFA",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "9A526D7E6CF5A95DFDC73DFBA67F691BBD0CCEFA" : 9223372036854775807,
+    "D25F869DCCC4F2271681F7460BBD74FF4321D38E" : 9223372036854775807,
+    "DFC3D569F6B1688419756A8584FC860A16A3086A" : 9223372036854775807,
+    "FAD89B9674A113E313B77BD489CA9DA3BE622DE5" : 9223372036854775807,
+    "CADC4D1B031AED4FEFB66A1DCF54AE5FF592E1F0" : 9223372036854775807,
+    "272F684BDB48C12FB82F63EFB90FF2436BBA2473" : 9223372036854775807,
+    "E28E36D423EC87798E52E2BF482E9F7A1E6479D6" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "674BF482-AE5B-433A-B514-6105396C5E9E",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "9A526D7E6CF5A95DFDC73DFBA67F691BBD0CCEFA" : "GS2.0\/",
+    "D25F869DCCC4F2271681F7460BBD74FF4321D38E" : "GS2.0\/GenS\/Common\/",
+    "DFC3D569F6B1688419756A8584FC860A16A3086A" : "GS2.0\/GenS\/hirender\/",
+    "FAD89B9674A113E313B77BD489CA9DA3BE622DE5" : "GS2.0\/GenS\/Datas\/ruby\/hiengine\/",
+    "CADC4D1B031AED4FEFB66A1DCF54AE5FF592E1F0" : "GS2.0\/GenS\/Utils\/SDWebImage\/Vendors\/FLAnimatedImage\/",
+    "272F684BDB48C12FB82F63EFB90FF2436BBA2473" : "GS2.0\/GenS\/Utils\/SDWebImage\/Vendors\/libwebp\/",
+    "E28E36D423EC87798E52E2BF482E9F7A1E6479D6" : "GS2.0\/GenS\/Utils\/SDWebImage\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "GenS",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "GenS.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/webmproject\/libwebp",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "272F684BDB48C12FB82F63EFB90FF2436BBA2473"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/git.coding.net\/dbsGen\/GS2.0.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9A526D7E6CF5A95DFDC73DFBA67F691BBD0CCEFA"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/Flipboard\/FLAnimatedImage",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "CADC4D1B031AED4FEFB66A1DCF54AE5FF592E1F0"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/dbsGen\/GenShelf_Common.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "D25F869DCCC4F2271681F7460BBD74FF4321D38E"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/192.168.18.23\/zhaorz\/hirender.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "DFC3D569F6B1688419756A8584FC860A16A3086A"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/rs\/SDWebImage.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "E28E36D423EC87798E52E2BF482E9F7A1E6479D6"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/dbsGen\/GenShelf_Ruby.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "FAD89B9674A113E313B77BD489CA9DA3BE622DE5"
+    }
+  ]
+}
