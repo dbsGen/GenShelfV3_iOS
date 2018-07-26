@@ -26,8 +26,8 @@
 #include <zconf.h>
 
 using namespace nl;
-using namespace hicore;
-using namespace hirender;
+using namespace gcore;
+using namespace gr;
 
 @interface GSReadViewController ()  <DIItemDelegate, GSDragViewDelegate, GSCoverSelectViewDelegate> {
     Ref<Chapter>    _chapter;
@@ -179,7 +179,7 @@ using namespace hirender;
     }
     
     _pages.clear();
-    const RefArray &ps = _chapter->getPages();
+    const Array &ps = _chapter->getPages();
     if (ps.size() != 0) {
         for (long i = 0, t = ps.size(); i < t; ++i) {
             _pages.push_back(ps->get(i));

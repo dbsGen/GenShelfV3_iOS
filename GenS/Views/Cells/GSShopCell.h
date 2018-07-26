@@ -16,5 +16,8 @@
 @property (nonatomic, strong) NSString *content;
 
 @property (nonatomic, strong) NSString *imageUrl;
+@property (nonatomic, strong) UIView *badgeView;
+
+- (void)setImageUrl:(NSString *)imageUrl headers:(NSDictionary*)headers;
 
 @end

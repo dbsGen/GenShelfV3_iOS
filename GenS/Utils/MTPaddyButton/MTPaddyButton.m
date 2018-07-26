@@ -20,6 +20,11 @@
     if (self) {
         self.paddyLayer.elasticityX = 0.3;
         self.paddyLayer.elasticityY = 0.3;
+        
+        [self addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self
+                                                                           action:@selector(pan:)]];
+        [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                           action:@selector(tap:)]];
     }
     return self;
 }
@@ -34,54 +39,117 @@
     return [MTPaddyLayer class];
 }
 
-- (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
-{
-    CGPoint p = [touch locationInView:self];
-    _startP = p;
-    _in = YES;
-    return YES;
-}
+//- (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
+//{
+//    CGPoint p = [touch locationInView:self];
+//    _startP = p;
+//    _in = YES;
+//    return YES;
+//}
+//
+//- (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
+//{
+//    CGPoint p = [touch locationInView:self];
+//    CGRect rect = self.bounds;
+//    if (_in && CGRectContainsPoint(CGRectInset(rect, -50, -50), p)) {
+//        float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
+//        float f1 = atan2f(y, x);
+//        
+//        float length = sqrtf(x*x + y*y);
+//        float persent = length / rect.size.width / 5;
+//        if (persent > 1) {
+//            persent = 1;
+//        }
+//        [self.paddyLayer rotation:f1 persent:persent];
+//    }else if (_in){
+//        _in = NO;
+//        float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
+//        float f1 = atan2f(y, x);
+//        [self.paddyLayer elastic:MTElasiticityAll rotation:f1];
+//    }
+//    return YES;
+//}
+//
+//- (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
+//{
+//    if (_in) {
+//        CGPoint p = [touch locationInView:self];
+//        CGRect rect = self.bounds;
+//        float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
+//        float f1 = atan2f(y, x);
+//        [self.paddyLayer elastic:MTElasiticityAll rotation:f1];
+//        _in = NO;
+//    }
+//}
+//
+//- (void)cancelTrackingWithEvent:(UIEvent *)event
+//{
+//    if (_in) {
+//        [self.paddyLayer elastic:MTElasiticityAll];
+//    }
+//}
 
-- (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
-{
-    CGPoint p = [touch locationInView:self];
-    CGRect rect = self.bounds;
-    if (_in && CGRectContainsPoint(CGRectInset(rect, -50, -50), p)) {
-        float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
-        float f1 = atan2f(y, x);
-        
-        float length = sqrtf(x*x + y*y);
-        float persent = length / rect.size.width / 5;
-        if (persent > 1) {
-            persent = 1;
+- (void)pan:(UIPanGestureRecognizer *)ge {
+    switch (ge.state) {
+        case UIGestureRecognizerStateBegan:
+        {
+            CGPoint p = [ge locationInView:self];
+            _startP = p;
+            _in = YES;
+            break;
         }
-        [self.paddyLayer rotation:f1 persent:persent];
-    }else if (_in){
-        _in = NO;
-        float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
-        float f1 = atan2f(y, x);
-        [self.paddyLayer elastic:MTElasiticityAll rotation:f1];
+        case UIGestureRecognizerStateChanged: {
+            CGPoint p = [ge locationInView:self];
+            CGRect rect = self.bounds;
+            if (_in && CGRectContainsPoint(CGRectInset(rect, -50, -50), p)) {
+                float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
+                float f1 = atan2f(y, x);
+                
+                float length = sqrtf(x*x + y*y);
+                float persent = length / rect.size.width / 5;
+                if (persent > 1) {
+                    persent = 1;
+                }
+                [self.paddyLayer rotation:f1 persent:persent];
+            }else if (_in){
+                _in = NO;
+                float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
+                float f1 = atan2f(y, x);
+                [self.paddyLayer elastic:MTElasiticityAll rotation:f1];
+            }
+            break;
+        }
+        case UIGestureRecognizerStateEnded: {
+            if (_in) {
+                CGPoint p = [ge locationInView:self];
+                CGRect rect = self.bounds;
+                float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
+                float f1 = atan2f(y, x);
+                [self.paddyLayer elastic:MTElasiticityAll rotation:f1];
+                _in = NO;
+                [self sendActionsForControlEvents:UIControlEventTouchUpInside];
+            }else {
+                [self sendActionsForControlEvents:UIControlEventTouchUpOutside];
+            }
+            break;
+        }
+        case UIGestureRecognizerStateFailed:
+        case UIGestureRecognizerStateCancelled: {
+            if (_in) {
+                [self.paddyLayer elastic:MTElasiticityAll];
+                [self sendActionsForControlEvents:UIControlEventTouchCancel];
+            }
+            break;
+        }
+            
+        default:
+            break;
     }
-    return YES;
 }
 
-- (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
-{
-    if (_in) {
-        CGPoint p = [touch locationInView:self];
-        CGRect rect = self.bounds;
-        float y = p.y - rect.size.height / 2, x = p.x - rect.size.width / 2;
-        float f1 = atan2f(y, x);
-        [self.paddyLayer elastic:MTElasiticityAll rotation:f1];
-        _in = NO;
-    }
-}
-
-- (void)cancelTrackingWithEvent:(UIEvent *)event
-{
-    if (_in) {
-        [self.paddyLayer elastic:MTElasiticityAll];
-    }
+- (void)tap:(UITapGestureRecognizer *)ge {
+    [self.paddyLayer elastic:MTElasiticityAll];
+    [self sendActionsForControlEvents:UIControlEventTouchUpInside];
 }
 
 @end

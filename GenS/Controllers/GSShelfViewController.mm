@@ -17,6 +17,9 @@
 #include <utils/NotificationCenter.h>
 #import "GSLoadingView.h"
 #import "GSHomeController.h"
+#import "GSWidgetButton.h"
+#import "GSProcessViewController.h"
+#import "GSUtils.hpp"
 
 static BOOL _shelf_reload = YES;
 
@@ -29,6 +32,8 @@ using namespace nl;
     vector<Ref<Book> > _books;
     RefCallback message_listener;
     GSLoadingView *_loadingView;
+    
+    GSWidgetButton *_widgetButton;
 }
 
 @property (nonatomic, strong) UITableView *tableView;
@@ -56,7 +61,7 @@ using namespace nl;
         message_listener = C([=](){
             _shelf_reload = YES;
         });
-        hirender::NotificationCenter::getInstance()->listen(Shop::NOTIFICATION_COLLECTED, message_listener);
+        gr::NotificationCenter::getInstance()->listen(Shop::NOTIFICATION_COLLECTED, message_listener);
         
         _shelf_reload = YES;
     }
@@ -64,7 +69,7 @@ using namespace nl;
 }
 
 - (void)dealloc {
-    hirender::NotificationCenter::getInstance()->remove(Shop::NOTIFICATION_COLLECTED, message_listener);
+    gr::NotificationCenter::getInstance()->remove(Shop::NOTIFICATION_COLLECTED, message_listener);
 }
 
 - (void)removeData:(NSNotification *)notification {
@@ -91,7 +96,7 @@ using namespace nl;
         }
         struct BookCompare {
             bool operator ()(const Ref<Book> &b1, const Ref<Book> &b2) {
-                return b1->getIndex() < b2->getIndex();
+                return b1->getIndex() > b2->getIndex();
             }
         };
         sort(_books.begin(), _books.end(), BookCompare());
@@ -127,6 +132,15 @@ using namespace nl;
                             action:@selector(buttonClicked)
                   forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:_loadingView];
+    
+    CGRect bounds = self.view.bounds;
+    _widgetButton = [[GSWidgetButton alloc] initWithFrame:CGRectMake(bounds.size.width - 88, bounds.size.height-88, 48, 48)];
+    _widgetButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
+    [_widgetButton setIconImage:[UIImage imageNamed:@"download"]];
+    [self.view addSubview:_widgetButton];
+    [_widgetButton addTarget:self
+                      action:@selector(gotoDownload)
+            forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -164,8 +178,9 @@ using namespace nl;
     }
     const Ref<Book> &book = _books[indexPath.row];
     cell.titleLabel.text = [NSString stringWithUTF8String:book->getName().c_str()];
-    cell.imageUrl = [NSString stringWithUTF8String:book->getThumb().c_str()];
-    cell.content = [NSString stringWithUTF8String:book->getDes().c_str()];
+    [cell setImageUrl:[NSString stringWithUTF8String:book->getThumb().c_str()]
+              headers:dic(book->getThumbHeaders())];
+    cell.content = [NSString stringWithUTF8String:book->getSubtitle().c_str()];
     return cell;
 }
 
@@ -232,6 +247,11 @@ using namespace nl;
 
 - (void)buttonClicked {
     [GSHomeController setNevIndex:1];
+}
+
+- (void)gotoDownload {
+    [self.navigationController pushViewController:[[GSProcessViewController alloc] init]
+                                         animated:YES];
 }
 
 @end

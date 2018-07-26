@@ -15,6 +15,7 @@
 #import "GlobalsDefine.h"
 #import "DIManager.h"
 #import "MTAlertView.h"
+#import "GSBadgeView.h"
 #include "../Common/Models/Book.h"
 #include "../Common/Models/Shop.h"
 
@@ -31,7 +32,7 @@ static __weak GSHomeController *GS_currentController = NULL;
 
 - (BOOL)greaterVersion:(NSString *)version {
     NSArray *vs1 = [self componentsSeparatedByString:@"."];
-    NSArray *vs2 = [self componentsSeparatedByString:@"."];
+    NSArray *vs2 = [version componentsSeparatedByString:@"."];
     for (NSInteger i = 0, t = vs1.count; i < t; ++i) {
         NSInteger vi1 = [[vs1 objectAtIndex:i] integerValue];
         NSInteger vi2 = 0;
@@ -48,22 +49,31 @@ static __weak GSHomeController *GS_currentController = NULL;
 
 @end
 
-@interface GSHomeController () <DIItemDelegate, MTAlertViewDelegate>
+@interface GSHomeController () <DIItemDelegate, MTAlertViewDelegate, GSShelfsViewControllerDelegate>
 
 @end
 
-@implementation GSHomeController
+@implementation GSHomeController {
+    GSideMenuItem *_shelfsItem;
+    GSBadgeView *_badgeView;
+}
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         
+        GSShelfsViewController *subctrl = [[GSShelfsViewController alloc] init];
+        subctrl.delegate = self;
+        _shelfsItem = [GSideMenuItem itemWithController:subctrl
+                                                  image:[UIImage imageNamed:@"setting"]];
+        _badgeView = [[GSBadgeView alloc] init];
+        _badgeView.hidden = YES;
+        _shelfsItem.actionView = _badgeView;
         self.items = @[[GSideMenuItem itemWithController:[[GSShelfViewController alloc] init]
                                                    image:[UIImage imageNamed:@"squares"]],
                        [GSideMenuItem itemWithController:[[GSLibraryViewController alloc] init]
                                                    image:[UIImage imageNamed:@"home"]],
-                       [GSideMenuItem itemWithController:[[GSShelfsViewController alloc] init]
-                                                   image:[UIImage imageNamed:@"setting"]]];
+                       _shelfsItem];
         
         if (Book::getLocalBooks().size() == 0) {
             if (Shop::getCurrentShop()) {
@@ -84,6 +94,15 @@ static __weak GSHomeController *GS_currentController = NULL;
     }
 }
 
+- (void)shelfBadgeChanged:(NSInteger)number {
+    if (number) {
+        _badgeView.hidden = NO;
+        _badgeView.text = [NSString stringWithFormat:@"%d", (int)number];
+    }else {
+        _badgeView.hidden = YES;
+    }
+}
+
 + (void)setNevIndex:(int)idx {
     GS_currentController.selectedIndex = idx;
 }
@@ -94,6 +113,7 @@ static __weak GSHomeController *GS_currentController = NULL;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [((GSShelfsViewController*)[self.items objectAtIndex:2].controller) requestOnBegin];
     [self requestVersion];
 }
 
@@ -107,7 +127,7 @@ static __weak GSHomeController *GS_currentController = NULL;
 }
 
 - (void)requestVersion {
-    DIItem *item = [[DIManager defaultManager] itemWithURLString:@"https://raw.githubusercontent.com/dbsGen/GenShelf_Versions/master/index.json"];
+    DIItem *item = [[DIManager defaultManager] itemWithURLString:@"http://dbsgen.coding.me/GenShelf_Versions/index.json"];
     item.delegate = self;
     [item start];
 }
@@ -132,7 +152,7 @@ static __weak GSHomeController *GS_currentController = NULL;
                     NSString * version = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
                     if ([vs greaterVersion:version]) {
                         MTAlertView *alert = [[MTAlertView alloc] initWithTitle:local(Will upgrade)
-                                                                        content:[NSString stringWithUTF8String:des_str]
+                                                                        content:[[NSString stringWithUTF8String:des_str] stringByReplacingOccurrencesOfString:@"<p>" withString:@"\n"]
                                                                           image:nil
                                                                         buttons:local(YES), local(NO), nil];
                         alert.delegate = self;

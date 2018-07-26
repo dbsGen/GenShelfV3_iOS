@@ -23,10 +23,11 @@
 #import "GSHomeController.h"
 #import "GSTitleInnerButton.h"
 #include <utils/NotificationCenter.h>
+#import "GSUtils.hpp"
 
-using namespace hicore;
+using namespace gcore;
 using namespace nl;
-using namespace hirender;
+using namespace gr;
 
 
 static BOOL _GSLibrary_reload = YES;
@@ -163,7 +164,8 @@ static BOOL _GSLibrary_reload = YES;
         }
         const Ref<Book> &book = _books[indexPath.row];
         cell.titleLabel.text = [NSString stringWithUTF8String:book->getName().c_str()];
-        cell.imageUrl = [NSString stringWithUTF8String:book->getThumb().c_str()];
+        [cell setImageUrl:[NSString stringWithUTF8String:book->getThumb().c_str()]
+                  headers:dic(book->getThumbHeaders())];
         cell.content = [NSString stringWithUTF8String:book->getSubtitle().c_str()];
         return cell;
     }else {
@@ -247,7 +249,7 @@ static BOOL _GSLibrary_reload = YES;
     _index = 0;
     Variant idx(_index);
     __weak GSLibraryViewController *that = self;
-    Variant call(C([=](bool success, RefArray arr, bool no_more){
+    Variant call(C([=](bool success, Array arr, bool no_more){
         if (that) {
             GSLibraryViewController *sthat = that;
             if (success) {
@@ -290,7 +292,7 @@ static BOOL _GSLibrary_reload = YES;
         Variant idx(++_index);
         StringName shop_id = nl::Shop::getCurrentShop()->getIdentifier();
         __weak GSLibraryViewController *that = self;
-        Variant call(C([=](bool success, RefArray arr, bool no_more){
+        Variant call(C([=](bool success, Array arr, bool no_more){
             if (that) {
                 GSLibraryViewController *sthat = that;
                 if (success) {

@@ -15,6 +15,7 @@ typedef void(^GSideMenuItemBlock)();
 @property (nonatomic, strong) UIViewController *controller;
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) UIImage *image;
+@property (nonatomic, strong) UIView *actionView;
 @property (nonatomic, copy) GSideMenuItemBlock block;
 
 + (id)itemWithController:(UIViewController *)controller;

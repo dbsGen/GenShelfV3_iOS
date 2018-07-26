@@ -21,9 +21,10 @@
 #include <utils/network/HTTPClient.h>
 #include "../Common/Models/Shop.h"
 #import "GSChapterCell.h"
+#import "GSUtils.hpp"
 
 using namespace nl;
-using namespace hirender;
+using namespace gr;
 
 
 @interface GSBookInfoViewController () <GSPartDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, DIItemDelegate, GSReadViewControllerDelegate> {
@@ -187,7 +188,7 @@ using namespace hirender;
     _index = 0;
     Variant idx(_index);
     __weak GSBookInfoViewController *that = self;
-    Variant v2(C([=](bool success, Ref<Book> book, RefArray chapters, bool hasMore){
+    Variant v2(C([=](bool success, Ref<Book> book, Array chapters, bool hasMore){
         if (that) {
             GSBookInfoViewController *sthat = that;
             if (success) {
@@ -233,7 +234,8 @@ using namespace hirender;
     [self setDescription:[NSString stringWithUTF8String:_book->getDes().c_str()]];
     _titleLabel.text = [NSString stringWithUTF8String:_book->getName().c_str()];
     _subtitleLabel.text = [NSString stringWithUTF8String:_book->getSubtitle().c_str()];
-    [self setImageUrl:[NSString stringWithUTF8String:_book->getThumb().c_str()]];
+    [self setImageUrl:[NSString stringWithUTF8String:_book->getThumb().c_str()]
+              headers:dic(_book->getThumbHeaders())];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -289,7 +291,7 @@ using namespace hirender;
     _descriptionScrollView.contentSize = rect.size;
 }
 
-- (void)setImageUrl:(NSString *)imageUrl {
+- (void)setImageUrl:(NSString *)imageUrl headers:(NSDictionary *)headers {
     if (_currentRequest) {
         [_currentRequest cancel];
         _currentRequest = NULL;
@@ -303,6 +305,7 @@ using namespace hirender;
                                                               _imageView.image = result;
                                                           }else {
                                                               _currentRequest = [[DIManager defaultManager] itemWithURLString:imageUrl];
+                                                              _currentRequest.headers = headers;
                                                               _currentRequest.delegate = self;
                                                               [_currentRequest start];
                                                           }
@@ -358,7 +361,7 @@ using namespace hirender;
             Variant v1(_book);
             Variant idx(++_index);
             __weak GSBookInfoViewController *that = self;
-            Variant v2(C([=](bool success, Ref<Book> book, RefArray chapters, bool hasMore){
+            Variant v2(C([=](bool success, Ref<Book> book, Array chapters, bool hasMore){
                 if (that) {
                     GSBookInfoViewController *sthat = that;
                     if (success) {

@@ -22,6 +22,9 @@
 		04DB59661F06067C00611193 /* gem_init.c in Sources */ = {isa = PBXBuildFile; fileRef = 04DB59651F06067C00611193 /* gem_init.c */; };
 		04EAF0141EBEC61C006FB855 /* gem_init.c in Sources */ = {isa = PBXBuildFile; fileRef = 04EAF0131EBEC61C006FB855 /* gem_init.c */; };
 		04EAF0161EBEC624006FB855 /* eval.c in Sources */ = {isa = PBXBuildFile; fileRef = 04EAF0151EBEC624006FB855 /* eval.c */; };
+		B22C96E71F2092C2001CAC39 /* gem_init.c in Sources */ = {isa = PBXBuildFile; fileRef = B22C96E21F2092C2001CAC39 /* gem_init.c */; };
+		B22C96E81F2092C2001CAC39 /* mrb_json.c in Sources */ = {isa = PBXBuildFile; fileRef = B22C96E41F2092C2001CAC39 /* mrb_json.c */; };
+		B22C96E91F2092C2001CAC39 /* parson.c in Sources */ = {isa = PBXBuildFile; fileRef = B22C96E51F2092C2001CAC39 /* parson.c */; };
 		B2310CB51ECEE2DB00E63E7F /* gem_init.c in Sources */ = {isa = PBXBuildFile; fileRef = B2310CAE1ECEE2DB00E63E7F /* gem_init.c */; };
 		B2310CB61ECEE2DB00E63E7F /* http_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = B2310CB31ECEE2DB00E63E7F /* http_parser.c */; };
 		B2310CB71ECEE2DB00E63E7F /* mrb_http.c in Sources */ = {isa = PBXBuildFile; fileRef = B2310CB41ECEE2DB00E63E7F /* mrb_http.c */; };
@@ -136,6 +139,10 @@
 		04DB59651F06067C00611193 /* gem_init.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gem_init.c; sourceTree = "<group>"; };
 		04EAF0131EBEC61C006FB855 /* gem_init.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gem_init.c; sourceTree = "<group>"; };
 		04EAF0151EBEC624006FB855 /* eval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = eval.c; sourceTree = "<group>"; };
+		B22C96E21F2092C2001CAC39 /* gem_init.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gem_init.c; sourceTree = "<group>"; };
+		B22C96E41F2092C2001CAC39 /* mrb_json.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mrb_json.c; sourceTree = "<group>"; };
+		B22C96E51F2092C2001CAC39 /* parson.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parson.c; sourceTree = "<group>"; };
+		B22C96E61F2092C2001CAC39 /* parson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parson.h; sourceTree = "<group>"; };
 		B2310CAE1ECEE2DB00E63E7F /* gem_init.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gem_init.c; sourceTree = "<group>"; };
 		B2310CB01ECEE2DB00E63E7F /* http_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_parser.h; sourceTree = "<group>"; };
 		B2310CB11ECEE2DB00E63E7F /* mrb_http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mrb_http.h; sourceTree = "<group>"; };
@@ -455,6 +462,25 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		B22C96E11F2092C2001CAC39 /* mruby-json */ = {
+			isa = PBXGroup;
+			children = (
+				B22C96E21F2092C2001CAC39 /* gem_init.c */,
+				B22C96E31F2092C2001CAC39 /* src */,
+			);
+			path = "mruby-json";
+			sourceTree = "<group>";
+		};
+		B22C96E31F2092C2001CAC39 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				B22C96E41F2092C2001CAC39 /* mrb_json.c */,
+				B22C96E51F2092C2001CAC39 /* parson.c */,
+				B22C96E61F2092C2001CAC39 /* parson.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		B2310CAD1ECEE2DB00E63E7F /* mruby-http */ = {
 			isa = PBXGroup;
 			children = (
@@ -574,6 +600,7 @@
 			isa = PBXGroup;
 			children = (
 				B29CAE901DDAF04200793332 /* gem_init.c */,
+				B22C96E11F2092C2001CAC39 /* mruby-json */,
 				04DB56891F05FEFD00611193 /* mruby-onig-regexp */,
 				B2310CAD1ECEE2DB00E63E7F /* mruby-http */,
 				040C64F91ECB2EA100F805BA /* mruby-tempfile */,
@@ -1530,6 +1557,7 @@
 				B29CAFA51DDAF28000793332 /* gem_init.c in Sources */,
 				B29CAF731DDAF04200793332 /* struct.c in Sources */,
 				B29CAF821DDAF04200793332 /* fmt_fp.c in Sources */,
+				B22C96E71F2092C2001CAC39 /* gem_init.c in Sources */,
 				B29CAF6B1DDAF04200793332 /* proc.c in Sources */,
 				B29CAFCC1DDB02F200793332 /* require.c in Sources */,
 				B29CAF8D1DDAF04200793332 /* range.c in Sources */,
@@ -1546,6 +1574,7 @@
 				040C64FF1ECB2EA100F805BA /* tempfile.c in Sources */,
 				B29CAF661DDAF04200793332 /* math.c in Sources */,
 				B2310CB51ECEE2DB00E63E7F /* gem_init.c in Sources */,
+				B22C96E91F2092C2001CAC39 /* parson.c in Sources */,
 				B2310CB61ECEE2DB00E63E7F /* http_parser.c in Sources */,
 				B29CAF8F1DDAF04200793332 /* string.c in Sources */,
 				B29CAF801DDAF04200793332 /* error.c in Sources */,
@@ -1577,6 +1606,7 @@
 				B29CAFB91DDAFF4500793332 /* gem_init.c in Sources */,
 				B29CAF841DDAF04200793332 /* hash.c in Sources */,
 				B29CAFB71DDAFF2300793332 /* gem_init.c in Sources */,
+				B22C96E81F2092C2001CAC39 /* mrb_json.c in Sources */,
 				B29CAF7B1DDAF04200793332 /* compar.c in Sources */,
 				B29CAF9B1DDAF1BF00793332 /* print.c in Sources */,
 				B29CAF6D1DDAF04200793332 /* mt19937ar.c in Sources */,

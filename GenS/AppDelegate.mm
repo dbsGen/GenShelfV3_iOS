@@ -9,8 +9,11 @@
 #import "AppDelegate.h"
 #import "GSHomeController.h"
 #include <utils/FileSystem.h>
+#include <utils/NotificationCenter.h>
 #import "load_classes.h"
 #include <core/Array.h>
+#import "RKDropdownAlert.h"
+#include "Common/Models/Settings.h"
 #import "GSAnalysis.h"
 
 @interface AppDelegate ()
@@ -21,15 +24,21 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     GS_load_classes();
-    hirender::FileSystem::getInstance()->setResourcePath([NSBundle mainBundle].resourcePath.UTF8String);
+    gr::FileSystem::getInstance()->setResourcePath([NSBundle mainBundle].resourcePath.UTF8String);
     NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    hirender::FileSystem::getInstance()->setStoragePath(path.UTF8String);
+    NSLog(@"%@", path);
+    gr::FileSystem::getInstance()->setStoragePath(path.UTF8String);
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     GSHomeController *menu = [[GSHomeController alloc] init];
     self.window.rootViewController = menu;
     [self.window makeKeyAndVisible];
     
     [GSAnalysis run];
+    
+    gr::NotificationCenter::getInstance()->listen(nl::Settings::NOTIFICATION_SHOW_MESSAGE, C([](const char *str){
+        [RKDropdownAlert title:[NSString stringWithUTF8String:str]
+                          time:2];
+    }));
     
     return YES;
 }

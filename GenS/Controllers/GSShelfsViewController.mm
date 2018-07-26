@@ -18,13 +18,18 @@
 #import "GCoverView.h"
 #import "SRRefreshView.h"
 #import "GSSettingViewController.h"
+#include <utils/NotificationCenter.h>
 
-#define SUPPORTED_PACKAGE_VERSION 2
+#define SUPPORTED_PACKAGE_VERSION 9
 
 @interface GSShelfsViewController () <DIItemDelegate, UITableViewDelegate, UITableViewDataSource, SRRefreshDelegate> {
     vector<Ref<nl::Shop> > _displayShops;
     map<void*, Ref<nl::Shop> > _localShops;
     map<void*, Ref<nl::Shop> > _onlineShops;
+    
+    BOOL _loading;
+    RefCallback remove_callback;
+    RefCallback install_callback;
 }
 
 @property (nonatomic, strong) SRRefreshView *refreshView;
@@ -41,19 +46,39 @@
                                                                                  style:UIBarButtonItemStylePlain
                                                                                 target:self
                                                                                 action:@selector(openMenu)];
+        
+        auto &shops = nl::Shop::getLocalShops();
+        for (auto it = shops->begin(), _e = shops->end(); it != _e; ++it) {
+            Ref<nl::Shop> shop = *it;
+            _localShops[shop->getIdentifier()] = shop;
+            _displayShops.push_back(shop);
+        }
+        
+        __weak GSShelfsViewController *that = self;
+        remove_callback = C([=](nl::Shop* shop){
+            [that checkShops:shop];
+        });
+        install_callback = C([=](nl::Shop* shop){
+            [that checkShops:shop];
+        });
+        
+        gr::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_REMOVED,
+                                                            remove_callback);
+        gr::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_INSTALLED,
+                                                            install_callback);
     }
     return self;
 }
 
+- (void)dealloc {
+    gr::NotificationCenter::getInstance()->remove(nl::Shop::NOTIFICATION_REMOVED,
+                                                        remove_callback);
+    gr::NotificationCenter::getInstance()->remove(nl::Shop::NOTIFICATION_INSTALLED,
+                                                        install_callback);
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    auto &shops = nl::Shop::getLocalShops();
-    for (auto it = shops->begin(), _e = shops->end(); it != _e; ++it) {
-        Ref<nl::Shop> shop = *it;
-        _localShops[shop->getIdentifier()] = shop;
-        _displayShops.push_back(shop);
-    }
     
     _tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
     _tableView.delegate = self;
@@ -66,7 +91,10 @@
     [_tableView addSubview:_refreshView];
     [_refreshView update:64];
     _tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-    [self requestData];
+//    [self requestData];
+    if (_loading) {
+        [_refreshView setLoading:YES];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -77,6 +105,7 @@
 - (void)itemComplete:(DIItem *)item {
     FileData file(item.path.UTF8String);
     JSONNODE *node = json_parse(file.text());
+    NSInteger badgeNumber = 0;
     for (int i = 0, t = json_size(node); i < t; ++i) {
         JSONNODE *child = json_at(node, i);
         JSONNODE *id_node = json_get(child, "id");
@@ -93,14 +122,50 @@
                 }
                 if (!exist) {
                     _displayShops.push_back(shop);
+                }else {
+                    const Ref<nl::Shop> &ls = _localShops[shop->getIdentifier()];
+                    if (ls && ls->isLocalize() && shop->getVersion() > ls->getVersion()) {
+                        ++badgeNumber;
+                    }
                 }
                 _onlineShops[shop->getIdentifier()] = shop;
             }
         }
     }
+    [self.delegate shelfBadgeChanged:badgeNumber];
     json_delete(node);
     [_tableView reloadData];
     [self.refreshView endRefresh];
+    _loading = NO;
+}
+
+- (void)checkShops:(nl::Shop*)s {
+    NSInteger badgeCount = 0;
+    NSInteger shopIndex = -1, count = 0;
+    for (auto it = _displayShops.begin(), _e = _displayShops.end(); it != _e; ++it) {
+        const Ref<nl::Shop> &shop = *it;
+        nl::Shop *ls = NULL, *os = NULL;
+        auto fit = _localShops.find(shop->getIdentifier());
+        if (fit != _localShops.end()) {
+            ls = *fit->second;
+        }
+        fit = _onlineShops.find(shop->getIdentifier());
+        if (fit != _onlineShops.end()) {
+            os = *fit->second;
+        }
+        if (ls && os && ls->isLocalize() && !os->isLocalize() && os->getVersion() > ls->getVersion()) {
+            ++badgeCount;
+        }
+        if (shop->getIdentifier() == s->getIdentifier()) {
+            shopIndex = count;
+        }
+        ++count;
+    }
+    if (shopIndex >= 0) {
+        [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:shopIndex inSection:0]]
+                              withRowAnimation:UITableViewRowAnimationFade];
+    }
+    [self.delegate shelfBadgeChanged:badgeCount];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -123,6 +188,20 @@
     cell.titleLabel.text = [NSString stringWithUTF8String:shop->getName().c_str()];
     cell.content = [NSString stringWithUTF8String:shop->getDescription().c_str()];
     cell.imageUrl = [NSString stringWithUTF8String:shop->getIcon().c_str()];
+    nl::Shop *ls = NULL, *os = NULL;
+    auto fit = _localShops.find(shop->getIdentifier());
+    if (fit != _localShops.end()) {
+        ls = *fit->second;
+    }
+    fit = _onlineShops.find(shop->getIdentifier());
+    if (fit != _onlineShops.end()) {
+        os = *fit->second;
+    }
+    if (ls && os && ls->isLocalize() && !os->isLocalize() && os->getVersion() > ls->getVersion()) {
+        cell.badgeView.hidden = NO;
+    }else {
+        cell.badgeView.hidden = YES;
+    }
     
     return cell;
 }
@@ -171,9 +250,14 @@
     [self.sideMenuController openMenu];
 }
 
+- (void)requestOnBegin {
+    [self requestData];
+}
+
 - (void)requestData {
+    _loading = YES;
     self.refreshView.loading = YES;
-    DIItem *item = [[DIManager defaultManager] itemWithURLString:@"https://raw.githubusercontent.com/dbsGen/GenShelf_Packages/master/index.json"];
+    DIItem *item = [[DIManager defaultManager] itemWithURLString:@"http://dbsgen.coding.me/GenShelf_Packages/index.json"];
     item.readCache = false;
     item.readCacheWhenError = true;
     item.delegate = self;

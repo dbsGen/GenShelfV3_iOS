@@ -21,7 +21,7 @@
 #import "GSReadViewController.h"
 
 using namespace nl;
-using namespace hicore;
+using namespace gcore;
 
 @interface GSLocalBookInfoViewController () <GSPartDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, DIItemDelegate, MTAlertViewDelegate, GSReadViewControllerDelegate>
 

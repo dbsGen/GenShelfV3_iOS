@@ -18,105 +18,45 @@ require 'duktape'
 # => 成功: on_page_count.inv true, total(int)
 # => 失败: on_page_count.inv false
 class Reader < HiEngine::Object
-  HOST_URL = 'http://i.hamreus.com:8080'
+  HOST_URL = 'http://images.dmzj.com/'
   @stop = false
-  @chapter_url
   @duktape = nil
-
-  def comic_url
-    host = case settings.find('服务器')
-    when 0
-      "comic"
-    when 1
-      "comic2"
-    when 2
-      "comic3"
-    else
-      "comic"
-    end
-    "http://#{host}.kukudm.com"
-  end
-
-  def load_book url, index, total, on_complete = nil
-    @client = HTTPClient.new url
-    @client.delay = 0.5
-    @client.read_cache = true
-    @client.on_complete = Callback.new do |c|
-      @client = nil
-      if c.getError.length == 0
-        doc = XMLDocument.new FileData.new(c.path), 1
-        if total == 0
-          node = doc.xpath("//*[@id='page1']/preceding-sibling::text()").first
-          node.getContent[/共(\d+)页/]
-          total = $1.to_i
-          on_page_count.inv true, total
-        end
-        ss = doc.xpath "//head/script"
-        unless @duktape
-            @duktape = DuktapeEngine.new
-            @duktape.eval "var document = {};document.write = function(input) {return input;}"
-            @duktape.eval "var window = this;window.setTimeout = function(){}"
-        end
-        load_script ss, 0 do
-          script_ndoe = doc.xpath("//script[not(@src)]").first
-          res = @duktape.eval script_ndoe.getContent
-          s_doc = XMLDocument.new Data::fromString(res), 1
-          img = s_doc.getRoot.xpath('//img').first
-          page = Page.new
-          page.status = 1
-          page.url = url
-          page.picture = @duktape.eval("encodeURI(\"#{img.attr 'src'}\")")
-          
-          if on_complete
-            on_complete.call true, page
-          else
-            loadedPage index, true, page
-            if index + 1 < total
-              next_node = doc.xpath("//a/img[@src='/images/d.gif']/..").first
-              load_book comic_url+next_node.attr('href'), index + 1, total
-            end
-          end
-        end
-      else
-        if on_complete
-          on_complete.call false
-        else
-          if total == 0
-            on_page_count.inv false
-          end
-        end
-      end
-    end
-    @client.start
-    @client
-  end
-
-  def load_script scripts, index, &block
-    if index < scripts.size
-      src = comic_url + scripts[index].attr('src')
-      @client = HTTPClient.new src
-      @client.read_cache = true
-      @client.on_complete = Callback.new do |c|
-        if c.getError.length == 0
-          @duktape.eval Encoder::decode(FileData.new(c.path), "gbk")
-          load_script scripts, index + 1, &block
-        else
-          on_page_count.inv false
-        end
-      end
-      @client.start
-    else
-      block.call
-    end
-  end
 
   # 开始解析一个章节，读取其中所有的页
   # @param chapter Chapter 章节信息
   def process chapter
-    @chapter_url = chapter.url
+    url = chapter.url
     @stop = false
+    p url
 
-    load_book @chapter_url, 0, 0
+    @client = HTTPClient.new url
+    @client.read_cache = true
+    @client.on_complete = Callback.new do |c|
+      @client = nil
+      if c.getError.length == 0
+      	if @duktape == nil
+      	  @duktape = DuktapeEngine.new
+      	  @duktape.eval file('read.js').text
+      	end
+      	doc = XMLDocument.new FileData.new(c.path), 1
+      	@duktape.eval doc.xpath("//head/script[not(@src)]").first.getContent
+      	arr_pages = @duktape.eval('getPages()')
+      	idx = 0
+      	arr_pages.each do |p|
+          page = Page.new
+          page.status = 1
+          page.url = url
+          page.picture = HOST_URL + p
+          page.addHeader "Referer", page.url
+          loadedPage idx, true, page
+      	  idx = idx + 1
+      	end
+      	on_page_count.inv true, arr_pages.size
+      else
+      	on_page_count.inv false
+      end
+    end
+    @client.start
   end
 
   # 停止解析
@@ -136,14 +76,31 @@ class Reader < HiEngine::Object
   def reloadPage page, idx, on_complete
     @stop = false
     page.status = 0
+    url = page.url
     
-    block = Proc.new do |success, n_page|
-      if success
-        on_complete.inv true, n_page
+    @client = HTTPClient.new page.url
+    @client.read_cache = true
+    @client.on_complete = Callback.new do |c|
+      @client = nil
+      if c.getError.length == 0
+      	if @duktape == nil
+      	  @duktape = DuktapeEngine.new
+      	  @duktape.eval file('read.js').text
+      	end
+      	doc = XMLDocument.new FileData.new(c.path), 1
+      	@duktape.eval doc.xpath("//head/script[not(@src)]").first.getContent
+      	arr_pages = @duktape.eval('getPages()')
+      	n_page = Page.new
+      	n_page.status = 1
+     	n_page.url = url
+        n_page.picture = HOST_URL + arr_pages[idx]
+      	on_complete.inv true, n_page
+      	
       else
-        on_complete.inv false, page
+      	on_complete.inv false, page
       end
     end
-    load_book page.url, 0, 0, block
+    @client.start
+
   end
 end

@@ -9,14 +9,16 @@
 #import "GSSettingViewController.h"
 #include "../Common/Models/Shop.h"
 #include "../Common/Models/Settings.h"
+#include <utils/NotificationCenter.h>
 #import "GSSwitchCell.h"
 #import "GSSelectCell.h"
 #import "GSInputCell.h"
 #import "GlobalsDefine.h"
 #import "GSLibraryViewController.h"
 #import "GSHomeController.h"
+#import "GSWebViewController.h"
 
-using namespace hicore;
+using namespace gcore;
 using namespace nl;
 
 int indexOfItem(const vector<Ref<SettingItem> > &items, const Ref<SettingItem> &item) {
@@ -46,6 +48,8 @@ int indexOfItem(const vector<Ref<SettingItem> > &items, const Ref<SettingItem> &
     
     NSMutableArray *_settingSections;
     Ref<Settings> _settings;
+    
+    RefCallback webListener;
     
 }
 
@@ -101,6 +105,27 @@ int indexOfItem(const vector<Ref<SettingItem> > &items, const Ref<SettingItem> &
     _tableView.dataSource = self;
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:_tableView];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    __weak GSSettingViewController *ctrl = self;
+    webListener = C([=](const char *url, const char *name, const RefCallback &callback){
+        GSWebViewController *web = [[GSWebViewController alloc] init];
+        
+        web.url = [NSURL URLWithString:[NSString stringWithUTF8String:url]];
+        web.title = [NSString stringWithUTF8String:name];
+        [web setCallback:*callback];
+        [ctrl.navigationController pushViewController:web
+                                             animated:YES];
+    });
+    NotificationCenter::getInstance()->listen(Settings::NOTIFICATION_OPEN_WEB_VIEW, webListener);
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    _settings->save();
+    NotificationCenter::getInstance()->remove(Settings::NOTIFICATION_OPEN_WEB_VIEW, webListener);
 }
 
 - (void)didReceiveMemoryWarning {
@@ -170,7 +195,7 @@ int indexOfItem(const vector<Ref<SettingItem> > &items, const Ref<SettingItem> &
             }
             NSInteger selectIndex = (int)setting_item->getValue();
             cell.opetionSelected = selectIndex;
-            RefArray options(setting_item->getParams());
+            Array options(setting_item->getParams());
             if (options) {
                 NSMutableArray *arr = [NSMutableArray array];
                 for (int i = 0, t = (int)options->size(); i < t; ++i) {
@@ -207,6 +232,18 @@ int indexOfItem(const vector<Ref<SettingItem> > &items, const Ref<SettingItem> &
             cell.inputView.returnKeyType = UIReturnKeyDone;
             return cell;
         }
+        case SettingItem::Button: {
+            static NSString *identifier = @"ButtonCell";
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                              reuseIdentifier:identifier];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            }
+            cell.textLabel.text = [self str:setting_item->getName().c_str()];
+            cell.textLabel.textColor = [UIColor colorWithWhite:0.3 alpha:1];
+            return cell;
+        }
             
         default:
             break;
@@ -234,6 +271,11 @@ int indexOfItem(const vector<Ref<SettingItem> > &items, const Ref<SettingItem> &
             if (_shop == Shop::getCurrentShop()) {
                 [GSLibraryViewController setReloadCache:YES];
             }
+            break;
+        }
+        case SettingItem::Button: {
+            RefCallback callback = setting_item->getParams();
+            callback->invoke(Array());
             break;
         }
         default:

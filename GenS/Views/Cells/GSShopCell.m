@@ -9,6 +9,7 @@
 #import "GSShopCell.h"
 #import "DIManager.h"
 #import "MTNetCacheManager.h"
+#import "GlobalsDefine.h"
 
 @interface GSShopCell () <DIItemDelegate>
 
@@ -27,7 +28,7 @@
         _thumView.image = [UIImage imageNamed:@"no_image"];
         [self.contentView addSubview:_thumView];
         
-        _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(80, 10, self.contentView.bounds.size.width - 90, 16)];
+        _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(80, 10, self.contentView.bounds.size.width - 106, 16)];
         _titleLabel.numberOfLines = 1;
         _titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         _titleLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1];
@@ -35,7 +36,7 @@
         [self.contentView addSubview:_titleLabel];
         
         _contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(80, 30,
-                                                                  self.contentView.bounds.size.width - 90,
+                                                                  self.contentView.bounds.size.width - 106,
                                                                   40)];
         _contentLabel.numberOfLines = 0;
         _contentLabel.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -46,6 +47,29 @@
         self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     return self;
+}
+
+#define SIZE 40
+
+- (UIView *)badgeView {
+    if (!_badgeView) {
+        CGRect bounds = self.contentView.bounds;
+        _badgeView = [[UIView alloc] initWithFrame:CGRectMake(bounds.size.width - SIZE - 10, 10,
+                                                              SIZE, 16)];
+        _badgeView.backgroundColor = RED_COLOR;
+        _badgeView.layer.cornerRadius = 5;
+        
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, _badgeView.bounds.size.width,
+                                                                   _badgeView.bounds.size.height)];
+        label.font = [UIFont systemFontOfSize:12];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        label.text = @"new";
+        label.textColor = [UIColor whiteColor];
+        [_badgeView addSubview:label];
+        [self.contentView addSubview:_badgeView];
+    }
+    return _badgeView;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -63,6 +87,10 @@
 }
 
 - (void)setImageUrl:(NSString *)imageUrl {
+    [self setImageUrl:imageUrl headers:nil];
+}
+
+- (void)setImageUrl:(NSString *)imageUrl headers:(NSDictionary *)headers {
     if (_imageUrl != imageUrl) {
         if (_currentRequest) {
             [_currentRequest cancel];
@@ -77,6 +105,7 @@
                                                                   _thumView.image = result;
                                                               }else {
                                                                   _currentRequest = [[DIManager defaultManager] itemWithURLString:_imageUrl];
+                                                                  _currentRequest.headers = headers;
                                                                   _currentRequest.delegate = self;
                                                                   [_currentRequest start];
                                                               }

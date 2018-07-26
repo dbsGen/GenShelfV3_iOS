@@ -221,23 +221,23 @@ const Ref<Shop> &GSShopInfoGetShop(GSShopInfoViewController *that) {
         if (that && *GSShopInfoGetShop(that) == shop)
             [that installedItem:shop];
     });
-    hirender::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_REMOVED,
+    gr::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_REMOVED,
                                                         remove_callback);
-    hirender::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_INSTALLED,
+    gr::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_INSTALLED,
                                                         install_callback);
     if (!isShopListener_inited) {
         isShopListener_inited = true;
-        hirender::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_REMOVED,
-                                                            S(&deleteComplete));
-        hirender::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_INSTALLED,
-                                                            S(&installComplete));
+        gr::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_REMOVED,
+                                                            C(&deleteComplete));
+        gr::NotificationCenter::getInstance()->listen(nl::Shop::NOTIFICATION_INSTALLED,
+                                                            C(&installComplete));
     }
 }
 - (void)viewDidDisappear:(BOOL)animated {
     
-    hirender::NotificationCenter::getInstance()->remove(nl::Shop::NOTIFICATION_REMOVED,
+    gr::NotificationCenter::getInstance()->remove(nl::Shop::NOTIFICATION_REMOVED,
                                                         remove_callback);
-    hirender::NotificationCenter::getInstance()->remove(nl::Shop::NOTIFICATION_INSTALLED,
+    gr::NotificationCenter::getInstance()->remove(nl::Shop::NOTIFICATION_INSTALLED,
                                                         install_callback);
 //    remove_callback = nil;
 //    install_callback = nil;

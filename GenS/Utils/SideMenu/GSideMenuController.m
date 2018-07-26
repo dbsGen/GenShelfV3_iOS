@@ -179,6 +179,15 @@ static NSMutableArray<GSideMenuController*> *_menuControllers;
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
+    if (item.actionView) {
+        item.actionView.tag = 0x99;
+        CGRect bounds = cell.contentView.bounds;
+        item.actionView.center = CGPointMake(bounds.size.width - 40, bounds.size.height/2);
+        item.actionView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
+        [cell addSubview:item.actionView];
+    }else {
+        [[cell viewWithTag:0x99] removeFromSuperview];
+    }
     return cell;
 }
 

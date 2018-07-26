@@ -6,13 +6,13 @@
 //  Copyright © 2017年 gen. All rights reserved.
 //
 
-#import "Page.h"
 #import "GSPictureCell.h"
+#import "Page.h"
 #import "DIManager.h"
 #import "MTNetCacheManager.h"
 
 using namespace nl;
-using namespace hirender;
+using namespace gr;
 
 @implementation GSPictureCell {
     Ref<Page> _page;
