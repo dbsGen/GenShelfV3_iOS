@@ -1,0 +1,9 @@
+[submodule "GenS/Common"]
+	path = GenS/Common
+	url = https://github.com/dbsGen/GenShelf_Common.git
+[submodule "GenS/grender"]
+	path = GenS/grender
+	url = https://github.com/dbsGen/grender.git
+[submodule "GenS/Datas/ruby/hiengine"]
+	path = GenS/Datas/ruby/hiengine
+	url = https://github.com/dbsGen/GenShelf_Ruby.git
